@@ -40,14 +40,17 @@ class Clnt:
         userarr.remove(globals()[self.obj])
         self.on = False
         del globals()[self.obj]
-        print("User disconnected: " + self.name)
+        temp = ""
+        for name in namearr:
+            temp += " " + name
+        print(temp)
+        sendtoall(("<start_name_arr>" + temp + "<end_name_arr>").encode())
         return (str(self.name) + " has disconnected.\n").encode()
 
     def receive(self):
         try:
             while self.on:
                 data = self.client.recv(1024)
-                print(data.decode())
                 if len(data.decode()) - len(self.name) - 2 <= 0:
                     data = self.end()
                 sendtoall(data)
@@ -56,6 +59,7 @@ class Clnt:
             temp = ""
             for name in namearr:
                 temp += " " + name
+            print(temp)
             sendtoall(("<start_name_arr>" + temp + "<end_name_arr>").encode())
 
 
@@ -67,7 +71,6 @@ def main():
         time.sleep(1)
         username = Client.recv(128)
         if username.decode() in namearr:
-            print(username.decode())
             Client.send(b"<>username_taken<!>")
             Client.close()
         elif " " in username.decode():
@@ -78,10 +81,10 @@ def main():
             userarr.append(globals()["Clnt" + str(users)])
             namearr.append(username.decode())
             sendtoall((username.decode() + " has connected.\n").encode())
-            print("User connected: " + username.decode() + "\n")
             temp = ""
             for name in namearr:
                 temp += " " + name
+            print(temp)
             sendtoall(("<start_name_arr>" + temp + "<end_name_arr>").encode())
             time.sleep(1)
 
